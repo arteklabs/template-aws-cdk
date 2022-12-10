@@ -1,6 +1,6 @@
-Arteklabs: TS Template
-======================
+Arteklabs: AWS CDK Template
+===========================
 
-Welcome to the ``arteklabs`` typescript template.
+Welcome to the ``arteklabs`` AWS CDK template.
 
-Read the docs `here <https://lifespline.github.io/samples-ts-template/>`_.
+Read the docs `here <https://lifespline.github.io/template-aws-cdk/>`_.
