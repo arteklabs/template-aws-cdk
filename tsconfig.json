@@ -1,7 +1,8 @@
 {
   "include": [
-    "samples/**/*.ts",
-    "samples/**/test/*.ts"
+    "lib/**/*.ts",
+    "bin/**/*.ts",
+    "test/*.ts"
   ],
   "exclude": [],
   "compilerOptions": {
