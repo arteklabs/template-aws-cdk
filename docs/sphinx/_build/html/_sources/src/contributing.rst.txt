@@ -1,0 +1,22 @@
+.. raw:: html
+
+   <a href="https://github.com/lifespline/backlog.git"><img loading="lazy" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_left_darkblue_121621.png?resize=149%2C149" class="attachment-full size-full" alt="Fork Me On Github" data-recalc-dims="1"></a>
+
+============
+Contributing
+============
+
+To contribute to this sample *TODO*
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
+
+   contributing/installation
+   contributing/configuration
+   contributing/usage
+   contributing/docs
+   contributing/contributing
+   contributing/changelog
+   contributing/license
+   contributing/authors
