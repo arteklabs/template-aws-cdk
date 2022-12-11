@@ -1,0 +1,1 @@
+// Bucket name must only contain lowercase characters and the symbols, period (.) and dash (-) (offset: 7)
