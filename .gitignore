@@ -7,3 +7,6 @@ node_modules
 
 # compiled JS
 dist/*
+
+# cdk
+cdk.out
