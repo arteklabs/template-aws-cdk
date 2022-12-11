@@ -21,6 +21,8 @@
       "noUnusedLocals": true,
       "removeComments": true,
       "strictPropertyInitialization": false,
-      "outDir": "dist"
+      "outDir": "dist",
+      "esModuleInterop": true,
+      "resolveJsonModule": true
   }
 }
