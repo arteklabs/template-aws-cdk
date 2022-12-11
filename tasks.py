@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 docs_docker_image = 'python:3.8'
-docs_debug_container_name = 'samples_ts_template_docs'
+docs_debug_container_name = 'cdk_template_docs'
 sphinx_server_default_port = '8000'
 docker_host_sphinx_server_default_port = '8004'
 docs_debug_mnt_path = f"{os.getcwd()}/docs/sphinx/_build/html"
