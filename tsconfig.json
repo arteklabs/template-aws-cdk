@@ -9,7 +9,7 @@
       "types": [
         "jest"
       ],
-      "target": "es6",
+      "target": "es2017",
       "module": "CommonJS",
       "sourceMap": true,
       "strict": true,
