@@ -1,4 +1,31 @@
 import config_static from '../assets/config.json'
+import { RemovalPolicy, Stack } from 'aws-cdk-lib';
+
+/**
+ * ``ITags`` defines the tags all stacks must declare.
+ */
+interface ITags {
+    // the project name
+    project: string
+    // the project version
+    version: string
+    // the project repository
+    repository: string
+    // the project's documentation
+    docs: string
+}
+
+/**
+ * ``IBucketProps`` defines the properties all buckets must declare.
+ */
+interface IBucketProps {
+    // The buckets removal policy
+    removalPolicy: RemovalPolicy,
+    // the bucket name
+    bucketName: string,
+    // don't version buckets
+    versioned: false
+}
 
 /**
  * An ``IConfig`` is a config object containing all static values that
@@ -20,6 +47,9 @@ interface IConfig {
     getBucketProps(): Object
 
     getStackId(stack: string): string
+
+    // get the tags for the stack
+    getStackTags(): Object
 }
 
 /**
@@ -54,9 +84,10 @@ class ConfigJSON implements IConfig {
      * @returns The bucket properties
      */
     public getBucketProps(): Object {
-        let props: Object = {
+        let props: IBucketProps = {
             "bucketName": this.getBucketName(),
-            "versioned": this.config['resource']['s3']["props"]["versioned"]
+            "versioned": this.config['resource']['s3']["props"]["versioned"],
+            "removalPolicy": RemovalPolicy.DESTROY
         }
 
         return props
@@ -74,6 +105,22 @@ class ConfigJSON implements IConfig {
      */
     public getStackId(stack: string): string {
         return this.config['stack'][stack]["deployment_id"]
+    }
+
+    public getStackTags(): ITags {
+        let tags: ITags = {
+            project: "",
+            version: "",
+            repository: "",
+            docs: ""
+        }
+
+        tags.project = this.config['project']['name']
+        tags.version = this.config['project']['version']
+        tags.repository = this.config['project']['repository']
+        tags.docs = this.config['project']['docs']
+
+        return tags
     }
 }
 
