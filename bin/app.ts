@@ -1,7 +1,12 @@
-import * as cdk from 'aws-cdk-lib';
+import { App } from 'aws-cdk-lib';
 import StorageStack from '../lib/storage-stack';
-import config from '../lib/utils/Config';
+import config from '../lib/utils/config';
+import { tagStack } from '../lib/utils/utils';
 
-const app = new cdk.App();
+const app = new App();
 
-new StorageStack(app, config.getStackId("storage"))
+// init stacks
+let storageStack : StorageStack = new StorageStack(app, config.getStackId("storage"))
+
+// tag stacks
+tagStack(storageStack)
