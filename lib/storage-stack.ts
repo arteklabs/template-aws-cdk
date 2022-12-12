@@ -1,6 +1,6 @@
 import { Stack, StackProps, aws_s3 as s3 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import config from './utils/Config'
+import config from './utils/config'
 class StorageStack extends Stack {
 
   public readonly bucket: s3.Bucket
