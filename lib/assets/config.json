@@ -3,8 +3,8 @@
         "name": "Arteklabs Skillset: AWS CDK Template",
         "name_internal": "arteklabs-cdk-template",
         "version": "1.0.0-beta",
-        "authors": ["arteklabs"],
-        "repository": "https://github.com/lifespline/template-aws-cdk"
+        "repository": "https://github.com/lifespline/template-aws-cdk",
+        "docs": "https://lifespline.github.io/template-aws-cdk/"
     },
     "profile": {
         "name": "secret",
