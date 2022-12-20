@@ -179,7 +179,7 @@ export default abstract class Config implements IConfig {
      * @param name The CDK stack name
      * @returns The CDK stack context properties
      */
-    public getStackContextProps(name: string): IStack {
+    public getStackProps(name: string): IStack {
         let contextProperties: IStack
         let stacks: Array<IStack> = this.stacks.filter((stackProps: IStack): boolean => stackProps.stackName == name)
         if (stacks.length) {

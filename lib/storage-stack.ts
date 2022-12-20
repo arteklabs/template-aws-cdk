@@ -10,7 +10,7 @@ export default class StorageStack extends BaseStack {
    */
   constructor(scope: Construct, config: IConfig) {
     let stackName: string ="storage-stack"
-    let props: IStack = config.getStackContextProps(stackName) 
+    let props: IStack = config.getStackProps(stackName) 
     super(scope,  props)
   }
 }

@@ -84,5 +84,5 @@ export default interface IConfig {
      * @param name The CDK stack name
      * @returns The CDK stack context properties
      */
-    getStackContextProps(name: string): IStack;
+    getStackProps(name: string): IStack;
 }
