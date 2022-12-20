@@ -1,3 +1,111 @@
 {
-    "app": "npx ts-node --prefer-ts-exts bin/app.ts"
+    "app": "npx ts-node bin/app.ts",
+    "context": {
+        "stacks": {
+            "storage-stack": {
+                "stackName": "storage-stack",
+                "id": "StorageStack",
+                "description": "S3 buckets",
+                "tags": {
+                    "tag": "unique to storage-stack"
+                },
+                "constructs": {
+                    "s3": [
+                        {
+                            "bucketName": "source"
+                        },
+                        {
+                            "bucketName": "target"
+                        }
+                    ]
+                },
+                "environments": {
+                    "dev": [
+                        {
+                            "account": "",
+                            "name": "",
+                            "region": ""
+                        }
+                    ],
+                    "release": [
+                        {
+                            "account": "",
+                            "name": "",
+                            "region": ""
+                        }
+                    ],
+                    "latest": [
+                        {
+                            "account": "",
+                            "name": "",
+                            "region": ""
+                        }
+                    ]
+                }
+            },
+            "network-stack": {
+                "stackName": "network-stack",
+                "id": "NetworkStack",
+                "description": "VPC, EC2 Subnets",
+                "env": "",
+                "tags": {
+                    "tag": "unique to network-stack"
+                },
+                "constructs": {
+                    "vpc": [
+                        {
+                            "prefix": "ARTEKLABS-",
+                            "suffix": "-VPC"
+                        }
+                    ]
+                },
+                "environments": {
+                    "dev": [
+                        {
+                            "account": "",
+                            "name": "",
+                            "region": ""
+                        }
+                    ],
+                    "release": [
+                        {
+                            "account": "",
+                            "name": "",
+                            "region": ""
+                        }
+                    ],
+                    "latest": [
+                        {
+                            "account": "",
+                            "name": "",
+                            "region": ""
+                        }
+                    ]
+                }
+            }
+        },
+        "environments": {
+            "dev": [
+                {
+                    "account": "",
+                    "name": "",
+                    "region": ""
+                }
+            ],
+            "release": [
+                {
+                    "account": "",
+                    "name": "",
+                    "region": ""
+                }
+            ],
+            "latest": [
+                {
+                    "account": "",
+                    "name": "",
+                    "region": ""
+                }
+            ]
+        }
+    }
 }
