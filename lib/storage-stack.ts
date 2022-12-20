@@ -1,14 +1,16 @@
-import { Stack, StackProps, aws_s3 as s3 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import config from './utils/config'
-class StorageStack extends Stack {
-
-  public readonly bucket: s3.Bucket
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
-
-    this.bucket = new s3.Bucket(this, config.getBucketName(), config.getBucketProps());
+import IConfig from './utils/interface-config';
+import BaseStack from './utils/base-stack';
+import { IStack } from './utils/type';
+export default class StorageStack extends BaseStack {
+  /**
+   * 
+   * @param scope 
+   * @param props 
+   */
+  constructor(scope: Construct, config: IConfig) {
+    let stackName: string ="storage-stack"
+    let props: IStack = config.getStackContextProps(stackName) 
+    super(scope,  props)
   }
 }
-
-export default StorageStack;

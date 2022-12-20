@@ -1,111 +1,75 @@
 {
     "app": "npx ts-node bin/app.ts",
     "context": {
-        "stacks": {
-            "storage-stack": {
+        "stacks": [
+            {
                 "stackName": "storage-stack",
                 "id": "StorageStack",
                 "description": "S3 buckets",
-                "tags": {
-                    "tag": "unique to storage-stack"
-                },
-                "constructs": {
-                    "s3": [
-                        {
-                            "bucketName": "source"
-                        },
-                        {
-                            "bucketName": "target"
-                        }
-                    ]
-                },
-                "environments": {
-                    "dev": [
-                        {
-                            "account": "",
-                            "name": "",
-                            "region": ""
-                        }
-                    ],
-                    "release": [
-                        {
-                            "account": "",
-                            "name": "",
-                            "region": ""
-                        }
-                    ],
-                    "latest": [
-                        {
-                            "account": "",
-                            "name": "",
-                            "region": ""
-                        }
-                    ]
-                }
+                "tags": [
+                    {
+                        "name": "",
+                        "value": ""
+                    }
+                ],
+                "constructs": [
+                    {
+                        "service" : "S3",
+                        "bucketName": "source"
+                    },
+                    {
+                        "service" : "S3",
+                        "bucketName": "target"
+                    }
+                ],
+                "environments": []
             },
-            "network-stack": {
+            {
                 "stackName": "network-stack",
                 "id": "NetworkStack",
                 "description": "VPC, EC2 Subnets",
                 "env": "",
-                "tags": {
-                    "tag": "unique to network-stack"
-                },
-                "constructs": {
-                    "vpc": [
-                        {
-                            "prefix": "ARTEKLABS-",
-                            "suffix": "-VPC"
-                        }
-                    ]
-                },
-                "environments": {
-                    "dev": [
-                        {
-                            "account": "",
-                            "name": "",
-                            "region": ""
-                        }
-                    ],
-                    "release": [
-                        {
-                            "account": "",
-                            "name": "",
-                            "region": ""
-                        }
-                    ],
-                    "latest": [
-                        {
-                            "account": "",
-                            "name": "",
-                            "region": ""
-                        }
-                    ]
-                }
+                "tags": [
+                    {
+                        "name": "",
+                        "value": ""
+                    }
+                ],
+                "constructs": [
+                    {
+                        "service": "vpc",
+                        "prefix": "ARTEKLABS-",
+                        "suffix": "-VPC"
+                    }
+                ],
+                "environments": []
             }
-        },
-        "environments": {
-            "dev": [
-                {
-                    "account": "",
-                    "name": "",
-                    "region": ""
-                }
-            ],
-            "release": [
-                {
-                    "account": "",
-                    "name": "",
-                    "region": ""
-                }
-            ],
-            "latest": [
-                {
-                    "account": "",
-                    "name": "",
-                    "region": ""
-                }
-            ]
-        }
+        ],
+        "environments": [
+            {
+                "environment": "dev",
+                "account": "123456789",
+                "name": "AWS-ACC-DEV",
+                "region": "eu-central-1"
+            },
+            {
+                "environment": "release",
+                "account": "789456123",
+                "name": "AWS-ACC-RELEASE",
+                "region": "eu-central-1"
+            },
+            {
+                "environment": "latest",
+                "account": "123789456",
+                "name": "AWS-ACC-LATEST",
+                "region": "eu-central-1"
+            }
+        ],
+        "tags": [
+            {
+                "name": "",
+                "value": ""
+            }
+        ]
     }
 }

@@ -1,6 +1,6 @@
 {
     "out": "docs/sphinx/src/typedocs",
-    "name": "Arteklabs Skillset: TS Samples",
+    "name": "Arteklabs Skillset: CDK Samples",
     "excludeExternals": true,
     "includeVersion": true,
     "entryPoints": ["samples/index.ts"]
