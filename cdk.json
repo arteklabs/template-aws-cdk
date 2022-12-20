@@ -22,7 +22,26 @@
                         "bucketName": "target"
                     }
                 ],
-                "environments": []
+                "environments": [
+                    {
+                        "environment": "dev",
+                        "account": "secret",
+                        "name": "secret",
+                        "region": "secret"
+                    },
+                    {
+                        "environment": "release",
+                        "account": "secret",
+                        "name": "secret",
+                        "region": "secret"
+                    },
+                    {
+                        "environment": "latest",
+                        "account": "secret",
+                        "name": "secret",
+                        "region": "secret"
+                    }
+                ]
             },
             {
                 "stackName": "network-stack",
@@ -42,30 +61,53 @@
                         "suffix": "-VPC"
                     }
                 ],
-                "environments": []
+                "environments": [
+                    {
+                        "environment": "dev",
+                        "account": "secret",
+                        "name": "secret",
+                        "region": "secret"
+                    },
+                    {
+                        "environment": "release",
+                        "account": "secret",
+                        "name": "secret",
+                        "region": "secret"
+                    },
+                    {
+                        "environment": "latest",
+                        "account": "secret",
+                        "name": "secret",
+                        "region": "secret"
+                    }
+                ]
             }
         ],
         "environments": [
             {
                 "environment": "dev",
-                "account": "123456789",
-                "name": "AWS-ACC-DEV",
-                "region": "eu-central-1"
+                "account": "secret",
+                "name": "secret",
+                "region": "secret"
             },
             {
                 "environment": "release",
-                "account": "789456123",
-                "name": "AWS-ACC-RELEASE",
-                "region": "eu-central-1"
+                "account": "secret",
+                "name": "secret",
+                "region": "secret"
             },
             {
                 "environment": "latest",
-                "account": "123789456",
-                "name": "AWS-ACC-LATEST",
-                "region": "eu-central-1"
+                "account": "secret",
+                "name": "secret",
+                "region": "secret"
             }
         ],
         "tags": [
+            {
+                "name": "",
+                "value": ""
+            },
             {
                 "name": "",
                 "value": ""
