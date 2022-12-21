@@ -1,3 +1,8 @@
+import { NoSuchParameterValueError } from "../error/error"
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import { RemovalPolicy } from "aws-cdk-lib";
+import { BucketProps } from "aws-cdk-lib/aws-s3";
+
 type Dictionary = { [key: string]: Object }
 type CDKContext = string | Array<Dictionary> | Dictionary | Array<{
     name: string,
@@ -5,8 +10,19 @@ type CDKContext = string | Array<Dictionary> | Dictionary | Array<{
     url: string
 }> | { node: string } | Array<string> | { type: string, url: string } | never
 
-// TODO
-// type CDKDeploymentEnvironment = 'dev' | 'release' | 'latest'
+/**
+ * Values in ``cdk.json``
+ */
+export type AWSService = "aws::s3" | "aws::lambda" | "aws::vpc"
+export type S3PropsBlockPublicAccess = "BLOCK_ALL"
+export type S3PropsRemovalPolicy = "DESTROY" | "RETAIN" | "SNAPSHOT"
+export type S3PropsAutoDeleteObjects = boolean
+export type S3PropsObjectOwnership = "BUCKET_OWNER_ENFORCED" | "BUCKET_OWNER_PREFERRED" | "OBJECT_WRITER"
+export type S3PropsVersioned = boolean
+
+/** used to deploy the app to a single environment */
+export type CDKParamEnvironment = "environment"
+
 type IRepository = {
     readonly type: string
     readonly url: string
@@ -52,20 +68,189 @@ class Tag implements ITag {
     }
 }
 
-
+/**
+ * Valid values/data types for ``cdk.json``
+ */
 type IConstruct = {
-    readonly service: string,
-    readonly bucketName?: string
+    readonly id: string,
+    readonly service: AWSService,
+    readonly bucketName?: string,
+    readonly blockPublicAccess?: S3PropsBlockPublicAccess,
+    readonly removalPolicy?: S3PropsRemovalPolicy,
+    readonly autoDeleteObjects?: S3PropsAutoDeleteObjects,
+    readonly objectOwnership?: S3PropsObjectOwnership,
+    readonly versioned?: S3PropsVersioned,
+    getId(): string,
+    getService(): string,
+    toS3Construct(): Constructs
 }
 
 class Construct implements IConstruct {
-    public readonly service: string
+    public readonly id: string
+    public readonly service: AWSService
     public readonly bucketName?: string
-    constructor(service: string, bucketName?: string) {
+    public readonly blockPublicAccess?: S3PropsBlockPublicAccess
+    public readonly removalPolicy?: S3PropsRemovalPolicy
+    public readonly autoDeleteObjects?: S3PropsAutoDeleteObjects
+    public readonly objectOwnership?: S3PropsObjectOwnership
+    public readonly versioned?: S3PropsVersioned
+    constructor(id: string, service: AWSService, bucketName: string, blockPublicAccess: S3PropsBlockPublicAccess,  removalPolicy: S3PropsRemovalPolicy, autoDeleteObjects: S3PropsAutoDeleteObjects, objectOwnership: S3PropsObjectOwnership,  versioned: S3PropsVersioned) {
+        this.id = id
         this.service = service
         this.bucketName = bucketName
+        this.blockPublicAccess = blockPublicAccess
+        this.removalPolicy = removalPolicy
+        this.autoDeleteObjects = autoDeleteObjects
+        this.objectOwnership = objectOwnership
+        this.versioned = versioned
+    }
+    getId(): string {
+        return this.id
+    }
+    getService(): string {
+        return this.service.toString()
+    }
+
+    /**
+     * Convert this Construct to an S3Construct
+     * @returns 
+     */
+    toS3Construct(): S3Construct {
+        return new S3Construct(
+            this.id,
+            this.service,
+            this.bucketName!,
+            this.blockPublicAccess!,
+            this.removalPolicy!,
+            this.autoDeleteObjects!,
+            this.objectOwnership!,
+            this.versioned!
+        )
     }
 }
+
+export class S3Construct extends Construct {
+    constructor(id: string, service: AWSService, bucketName: string, blockPublicAccess: S3PropsBlockPublicAccess,  removalPolicy: S3PropsRemovalPolicy, autoDeleteObjects: S3PropsAutoDeleteObjects, objectOwnership: S3PropsObjectOwnership,  versioned: S3PropsVersioned) {
+        super(id,
+        service,
+        bucketName,
+        blockPublicAccess,
+        removalPolicy,
+        autoDeleteObjects,
+        objectOwnership,
+        versioned)
+    }
+    getId(): string {
+        return this.id
+    }
+    getService(): string {
+        return this.service.toString()
+    }
+    /**
+     * Get the bucket name
+     * 
+     * The bucket name is defined according to the following expression:
+     * 
+     * {bucketName}-{accountId}
+     * 
+     * @returns The bucket name
+     */
+    getBucketName(): string {
+        if (!this.bucketName) {
+            throw new NoSuchParameterValueError('bucketName', '')
+        }
+        return this.bucketName
+    }
+    getBlockPublicAccess(): s3.BlockPublicAccess {
+        if (!this.blockPublicAccess) {
+            throw new NoSuchParameterValueError('blockPublicAccess', '')
+        }
+        let result: s3.BlockPublicAccess
+        switch(this.blockPublicAccess) {
+            case "BLOCK_ALL": {
+               result = s3.BlockPublicAccess.BLOCK_ALL
+               break;
+            }
+            default: {
+               result = s3.BlockPublicAccess.BLOCK_ALL
+               break;
+            }
+         }
+         return result
+    }
+    getRemovalPolicy(): RemovalPolicy {
+        if (!this.removalPolicy) {
+            throw new NoSuchParameterValueError('removalPolicy', '')
+        }
+        let result: RemovalPolicy
+        switch(this.removalPolicy) {
+            case "DESTROY": {
+               result = RemovalPolicy.DESTROY
+               break;
+            }
+            case "RETAIN": {
+               result = RemovalPolicy.RETAIN
+               break;
+            }
+            case "SNAPSHOT": {
+               result = RemovalPolicy.SNAPSHOT
+               break;
+            }
+            default: {
+               result = RemovalPolicy.DESTROY
+               break;
+            }
+         }
+         return result
+    }
+    getAutoDeleteObjects(): boolean {
+        if (!this.autoDeleteObjects)
+            throw new NoSuchParameterValueError('autoDeleteObjects', '')
+        return this.autoDeleteObjects
+    }
+    getObjectOwnership(): s3.ObjectOwnership {
+        if (!this.objectOwnership)
+            throw new NoSuchParameterValueError('objectOwnership', '')
+        let result: s3.ObjectOwnership
+        switch(this.objectOwnership) {
+            case "BUCKET_OWNER_ENFORCED": {
+               result = s3.ObjectOwnership.BUCKET_OWNER_ENFORCED
+               break;
+            }
+            case "BUCKET_OWNER_PREFERRED": {
+               result = s3.ObjectOwnership.BUCKET_OWNER_PREFERRED
+               break;
+            }
+            case "OBJECT_WRITER": {
+               result = s3.ObjectOwnership.OBJECT_WRITER
+               break;
+            }
+            default: {
+               result = s3.ObjectOwnership.BUCKET_OWNER_ENFORCED
+               break;
+            }
+         }
+         return result
+    }
+    getVersioned(): boolean {
+        if (!this.versioned)
+            throw new NoSuchParameterValueError('versioned', '')
+        return this.versioned
+    }
+
+    getBucketProps(): BucketProps {
+        return {
+            bucketName: this.getBucketName(),
+            blockPublicAccess: this.getBlockPublicAccess(),
+            removalPolicy: this.getRemovalPolicy(),
+            autoDeleteObjects: this.getAutoDeleteObjects(),
+            objectOwnership: this.getObjectOwnership(),
+            versioned: this.getVersioned(),
+        }
+    }
+}
+
+export type Constructs = S3Construct
 
 /**
  * Specification for `cdk.json` and `package.json` static configuration fields 
@@ -78,6 +263,7 @@ type IStack = {
     readonly tags: Array<ITag>,
     readonly constructs: Array<IConstruct>,
     readonly environments: Array<IEnvironment>,
+    getConstruct(service: AWSService, name: string): S3Construct
 }
 
 class Stack implements IStack {
@@ -95,8 +281,32 @@ class Stack implements IStack {
         this.constructs = constructs
         this.environments = environments
     }
-}
+    getConstruct(service: AWSService, id: string): Constructs {
+        let construct: IConstruct
+        let constructs: Array<IConstruct> = this.constructs.filter((constructData: IConstruct) => {
+            constructData.service == service && constructData.id == id
+        })
 
+        if (constructs.length) {
+            construct = constructs[0]
+        } else {
+            throw new NoSuchParameterValueError('service/id', `${service}/${id}`)
+        }
+
+        // cast to appropriate construct class
+        let serviceConstruct: Constructs
+        switch(construct.service) {
+            case "aws::s3": {
+                serviceConstruct = construct.toS3Construct()
+                break;
+            }
+            default: {
+                throw new NoSuchParameterValueError('service', service)
+             }
+        }
+        return serviceConstruct
+    }
+}
 
 type IEnvironment = {
     readonly environment: string,

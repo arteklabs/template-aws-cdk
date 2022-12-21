@@ -1,11 +1,16 @@
-import { Stack } from 'aws-cdk-lib';
-
-/**
- * This stack is not meant to be deployed on its own.
- * It serves as a building block for other stacks to set up shared elements for network
- */
-class NetworkStack extends Stack {
-
+import { Construct } from 'constructs';
+import IConfig from './utils/interface-config';
+import BaseStack from './utils/base-stack';
+import { IStack } from './utils/type';
+export default class NetworkStack extends BaseStack {
+  /**
+   * 
+   * @param scope 
+   * @param props 
+   */
+  constructor(scope: Construct, config: IConfig) {
+    let stackName: string ="network-stack"
+    let props: IStack = config.getStackProps(stackName) 
+    super(scope,  props)
+  }
 }
-
-export default NetworkStack;

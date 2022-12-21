@@ -20,7 +20,7 @@ export default class ConfigJSON extends Config {
     constructor(app: App) {
         let projectAuthor: string = npm_data.author
         let projectContributors: Array<IContributors> = npm_data.contributors
-        let  projectEngines: { node: string } = npm_data.engines
+        let projectEngines: { node: string } = npm_data.engines
         let projectOS: Array<string> = npm_data.os
         let projectBugs: string = npm_data.bugs
         let projectKeywords: Array<string> = npm_data.keywords
@@ -32,12 +32,9 @@ export default class ConfigJSON extends Config {
         let tags: Array<ITag> = app.node.tryGetContext("tags")
         let environments: Array<IEnvironment> = app.node.tryGetContext("environments")
         let stacks: Array<IStack> = app.node.tryGetContext("stacks")
-        stacks.forEach((stack: IStack): void => {
-            // append project tags to stack specific tags
-            stack.tags.concat(tags)
-        })
 
         super(
+            app,
             projectAuthor,
             projectContributors,
             projectOS,

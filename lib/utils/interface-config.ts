@@ -1,3 +1,4 @@
+import { App } from "aws-cdk-lib";
 import { IContributors, IEnvironment, IRepository, IStack, ITag } from "./type";
 
 /**
@@ -77,7 +78,7 @@ export default interface IConfig {
      * @example
      * 
      */
-    readonly environments?: Array<IEnvironment>
+    readonly environments: Array<IEnvironment>
     /**
      * Get the CDK stack context properties
      * 
@@ -85,4 +86,6 @@ export default interface IConfig {
      * @returns The CDK stack context properties
      */
     getStackProps(name: string): IStack;
+    getAllTags(tags: Array<ITag>): Array<ITag>;
+    getEnvironments(app: App, environments: Array<IEnvironment>): Array<IEnvironment>
 }

@@ -14,34 +14,27 @@
                 ],
                 "constructs": [
                     {
-                        "service" : "S3",
-                        "bucketName": "source"
+                        "service" : "aws::s3",
+                        "id": "source",
+                        "bucketName": "source",
+                        "blockPublicAccess": "BLOCK_ALL",
+                        "removalPolicy": "DESTROY",
+                        "autoDeleteObjects": true,
+                        "objectOwnership": "BUCKET_OWNER_ENFORCED",
+                        "versioned": false
                     },
                     {
-                        "service" : "S3",
-                        "bucketName": "target"
+                        "service" : "aws::s3",
+                        "id": "target",
+                        "bucketName": "target",
+                        "blockPublicAccess": "BLOCK_ALL",
+                        "removalPolicy": "DESTROY",
+                        "autoDeleteObjects": true,
+                        "objectOwnership": "BUCKET_OWNER_ENFORCED",
+                        "versioned": false
                     }
                 ],
-                "environments": [
-                    {
-                        "environment": "dev",
-                        "account": "secret",
-                        "name": "secret",
-                        "region": "secret"
-                    },
-                    {
-                        "environment": "release",
-                        "account": "secret",
-                        "name": "secret",
-                        "region": "secret"
-                    },
-                    {
-                        "environment": "latest",
-                        "account": "secret",
-                        "name": "secret",
-                        "region": "secret"
-                    }
-                ]
+                "environments": []
             },
             {
                 "stackName": "network-stack",
@@ -56,31 +49,49 @@
                 ],
                 "constructs": [
                     {
-                        "service": "vpc",
+                        "service": "aws::vpc",
+                        "id": "vpc",
                         "prefix": "ARTEKLABS-",
                         "suffix": "-VPC"
                     }
                 ],
-                "environments": [
+                "environments": []
+            },
+            {
+                "stackName": "compute-stack",
+                "id": "ComputeStack",
+                "description": "Lambda",
+                "tags": [
                     {
-                        "environment": "dev",
-                        "account": "secret",
-                        "name": "secret",
-                        "region": "secret"
-                    },
-                    {
-                        "environment": "release",
-                        "account": "secret",
-                        "name": "secret",
-                        "region": "secret"
-                    },
-                    {
-                        "environment": "latest",
-                        "account": "secret",
-                        "name": "secret",
-                        "region": "secret"
+                        "name": "",
+                        "value": ""
                     }
-                ]
+                ],
+                "constructs": [
+                    {
+                        "service" : "aws::lambda",
+                        "id": "move-data"
+                    }
+                ],
+                "environments": []
+            },
+            {
+                "stackName": "permissions-stack",
+                "id": "PermissionsStack",
+                "description": "IAM S3 role",
+                "tags": [
+                    {
+                        "name": "",
+                        "value": ""
+                    }
+                ],
+                "constructs": [
+                    {
+                        "service" : "aws::iam",
+                        "id": "role"
+                    }
+                ],
+                "environments": []
             }
         ],
         "environments": [
@@ -104,10 +115,6 @@
             }
         ],
         "tags": [
-            {
-                "name": "",
-                "value": ""
-            },
             {
                 "name": "",
                 "value": ""

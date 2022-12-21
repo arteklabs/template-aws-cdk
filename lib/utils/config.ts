@@ -1,20 +1,21 @@
 import IConfig from './interface-config';
 import { IContributors, IEnvironment, IRepository, IStack, ITag } from './type';
 import { NoSuchParameterValueError } from '../error/error';
+import { App } from 'aws-cdk-lib';
 
 /**
  * @summary
- * 
- * ``Config`` specifies configuration parameters for the CDK app. Static 
- * configuration parameters can be specified in static configuration 
- * files like ``package.json``, ``cdk.json``, ``cdk.context.json``, etc. 
+ *
+ * ``Config`` specifies configuration parameters for the CDK app. Static
+ * configuration parameters can be specified in static configuration
+ * files like ``package.json``, ``cdk.json``, ``cdk.context.json``, etc.
  * Dynamic configuration parameters are induced from the build runtime.
- * 
+ *
  * Extend ``Config`` depending on the static file format.
- * 
+ *
  * @see
- * 
- * ``ConfiJSON`` consumes the static configuration files ``package.json``, and 
+ *
+ * ``ConfiJSON`` consumes the static configuration files ``package.json``, and
  * ``cdk.json``.
  */
 export default abstract class Config implements IConfig {
@@ -69,17 +70,17 @@ export default abstract class Config implements IConfig {
     public readonly stacks: Array<IStack>
     /**
      * The project's CDK environments.
-     * 
-     * @default {} The environments are either defined (``n-1`` takes 
+     *
+     * @default {} The environments are either defined (``n-1`` takes
      * precedence over ``n``):
-     * 
+     *
      * 1. passed as environment variables (@todo)
      * 2. passed as CLI arguments (@todo)
      * 3 globally
      * 4. per stack (@todo)
-     * 
+     *
      * @example
-     * 
+     *
      * // environments defined globally
      * {
      *    "context": {
@@ -108,7 +109,7 @@ export default abstract class Config implements IConfig {
      *       }
      *    }
      * }
-     * 
+     *
      * // environments defined by stack
      * {
      *    "context": {
@@ -140,9 +141,10 @@ export default abstract class Config implements IConfig {
      *    }
      * }
      */
-    public readonly environments?: Array<IEnvironment>
+    public readonly environments: Array<IEnvironment>
 
     constructor(
+        app: App,
         projectAuthor: string,
         projectContributors: Array<IContributors>,
         projectOS: Array<string>,
@@ -156,7 +158,7 @@ export default abstract class Config implements IConfig {
         projectDocs: string,
         tags: Array<ITag>,
         stacks: Array<IStack>,
-        environments?: Array<IEnvironment>
+        environments: Array<IEnvironment>
     ) {
         this.projectKeywords = projectKeywords
         this.projectBugs = projectBugs
@@ -170,22 +172,68 @@ export default abstract class Config implements IConfig {
         this.projectRepository = projectRepository
         this.projectDocs = projectDocs
         this.stacks = stacks
-        this.environments = environments
+        this.environments = this.getEnvironments(app, environments)
         // generate default project tags
-        let projectTags: Array<{ name: string, value: string }> = []
-        projectTags.push({name: 'author', value: this.projectAuthor })
-        projectTags.push({name: 'project', value: this.projectName })
-        projectTags.push({name: 'description', value: this.projectDescription })
-        projectTags.push({name: 'version', value: this.projectVersion })
-        projectTags.push({name: 'docs', value: this.projectDocs })
-        projectTags.push({name: 'src', value: this.projectRepository.url })
+        this.tags = this.getAllTags(tags)
+    }
+    /**
+     * Get the project's deployment environments
+     *
+     * Apply rules of precedence:
+     * 
+     * 1. passed as environment variables (@todo)
+     * 2. passed as CLI arguments:
+     *      1. ``environment``
+     *      2. ``account``
+     *      3. ``name``
+     *      4. ``region``
+     * 3. globally ({ "context": { "environments" } })
+     * 4. per stack ({ "context": { "stacks": { "environments" } } }) (@todo)
+     *
+     * It is required that the deployment host has the environments credentials.
+     * 
+     * @returns The CDK app deployment environments
+     */
+    public getEnvironments(app: App, environments: Array<IEnvironment>): Array<IEnvironment> {
+        let finalEnv: Array<IEnvironment> = []
+        let environment: string = app.node.tryGetContext("environment")
+        let account: string = app.node.tryGetContext("account")
+        let name: string = app.node.tryGetContext("name")
+        let region: string = app.node.tryGetContext("region")
 
-        
-        this.tags = projectTags.concat(tags)
+        // environment specification passed through CLI args
+        if (environment && account && name && region)
+            finalEnv = [{ environment, account, name, region }]
+        // environment name specified at ``cdk.json`` passed through CLI args
+        else if (environment)
+            finalEnv = environments.filter((env: IEnvironment) => {
+                env.environment == environment
+            })
+        // no environment specified by the CLI, deploy to all specified 
+        // environments in ``cdk.json``
+        else
+            finalEnv = environments
+
+        return finalEnv
+    }
+    /**
+     * Get the stack default tags
+     *
+     * @returns The stack default tags
+     */
+    public getAllTags(tags: Array<ITag>): Array<ITag> {
+        let defaultTags: Array<ITag> = []
+        defaultTags.push({name: 'author', value: this.projectAuthor })
+        defaultTags.push({name: 'project', value: this.projectName })
+        defaultTags.push({name: 'description', value: this.projectDescription })
+        defaultTags.push({name: 'version', value: this.projectVersion })
+        defaultTags.push({name: 'docs', value: this.projectDocs })
+        defaultTags.push({name: 'src', value: this.projectRepository.url })
+        return defaultTags.concat(tags)
     }
     /**
      * Get the CDK stack context properties
-     * 
+     *
      * @param name The CDK stack name
      * @returns The CDK stack context properties
      */
