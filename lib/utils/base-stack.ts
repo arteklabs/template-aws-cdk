@@ -10,7 +10,7 @@ export default abstract class BaseStack extends Stack {
         this.tag()
     }
     /**
-     * Tag stack according to the context properties in ``IConfig``
+     * Tag stack according to the context properties
      *
      * Stacks
      * ------
