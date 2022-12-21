@@ -171,7 +171,17 @@ export default abstract class Config implements IConfig {
         this.projectDocs = projectDocs
         this.stacks = stacks
         this.environments = environments
-        this.tags = tags
+        // generate default project tags
+        let projectTags: Array<{ name: string, value: string }> = []
+        projectTags.push({name: 'author', value: this.projectAuthor })
+        projectTags.push({name: 'project', value: this.projectName })
+        projectTags.push({name: 'description', value: this.projectDescription })
+        projectTags.push({name: 'version', value: this.projectVersion })
+        projectTags.push({name: 'docs', value: this.projectDocs })
+        projectTags.push({name: 'src', value: this.projectRepository.url })
+
+        
+        this.tags = projectTags.concat(tags)
     }
     /**
      * Get the CDK stack context properties
