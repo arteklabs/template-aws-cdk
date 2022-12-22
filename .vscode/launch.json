@@ -13,6 +13,26 @@
             "outFiles": [
                 "${workspaceFolder}/dist/bin/*.js"
             ]
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "testing cdk debug",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "runtimeArgs": [
+                "-r", "./node_modules/ts-node/register/transpile-only"
+            ],
+            "args": [
+                "${workspaceFolder}/node_modules/aws-cdk/bin/cdk.js",
+                "deploy",
+                "-c",
+                "environment=debug-test",
+                "account=debug-test",
+                "name=debug-test",
+                "region=debug-test",
+            ]
+            }
     ]
 }
