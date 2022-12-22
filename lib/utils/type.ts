@@ -260,9 +260,27 @@ type IStack = {
     readonly stackName: string,
     readonly id: string,
     readonly description: string,
-    readonly tags: Array<ITag>,
+    /**
+     * The stack tags.
+     * 
+     * The stack tags are editable at runtime.
+     */
+    tags: Array<ITag>,
     readonly constructs: Array<IConstruct>,
-    readonly environments: Array<IEnvironment>,
+    /**
+     * The environments the stack is to be deployed to
+     * 
+     * The stack environments are editable at runtime.
+    */
+    environments: Array<IEnvironment>,
+    /**
+     * The AWS account of deployment for the stack
+     */
+    readonly account: string,
+    /**
+     * The region in the AWS account of deployment for the stack
+     */
+    readonly region: string,
     getConstruct(service: AWSService, name: string): S3Construct
 }
 
@@ -270,16 +288,26 @@ class Stack implements IStack {
     public readonly stackName: string
     public readonly id: string
     public readonly description: string
-    public readonly tags: Array<ITag>
+    public tags: Array<ITag>
     public readonly constructs: Array<IConstruct>
-    public readonly environments: Array<IEnvironment>
-    constructor(stackName: string, id: string, description: string, tags: Array<ITag>, constructs: Array<IConstruct>, environments: Array<IEnvironment>) {
+    public environments: Array<IEnvironment>
+    /**
+     * The AWS account of deployment for the stack
+     */
+    public readonly account: string
+    /**
+     * The region in the AWS account of deployment for the stack
+     */
+    public readonly region: string
+    constructor(stackName: string, id: string, description: string, tags: Array<ITag>, constructs: Array<IConstruct>, environments: Array<IEnvironment>, account: string, region: string) {
         this.stackName = stackName
         this.id = id
         this.description = description
         this.tags = tags
         this.constructs = constructs
         this.environments = environments
+        this.account = account
+        this.region = region
     }
     getConstruct(service: AWSService, id: string): Constructs {
         let construct: IConstruct

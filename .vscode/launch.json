@@ -4,7 +4,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "app",
+            "name": "utils",
             "skipFiles": [
                 "<node_internals>/**"
             ],
@@ -17,7 +17,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "testing cdk debug",
+            "name": "deploy",
             "skipFiles": [
                 "<node_internals>/**"
             ],
@@ -27,12 +27,11 @@
             "args": [
                 "${workspaceFolder}/node_modules/aws-cdk/bin/cdk.js",
                 "deploy",
-                "-c",
-                "environment=debug-test",
-                "account=debug-test",
-                "name=debug-test",
-                "region=debug-test",
+                "-c", "environment=dev",
+                "-c", "account=accid",
+                "-c", "name=cmcde",
+                "-c", "region=eu-central-1",
             ]
-            }
+        }
     ]
 }

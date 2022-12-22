@@ -6,12 +6,7 @@
                 "stackName": "storage-stack",
                 "id": "StorageStack",
                 "description": "S3 buckets",
-                "tags": [
-                    {
-                        "name": "",
-                        "value": ""
-                    }
-                ],
+                "tags": [],
                 "constructs": [
                     {
                         "service" : "aws::s3",
@@ -41,12 +36,7 @@
                 "id": "NetworkStack",
                 "description": "VPC, EC2 Subnets",
                 "env": "",
-                "tags": [
-                    {
-                        "name": "",
-                        "value": ""
-                    }
-                ],
+                "tags": [],
                 "constructs": [
                     {
                         "service": "aws::vpc",
@@ -61,12 +51,7 @@
                 "stackName": "compute-stack",
                 "id": "ComputeStack",
                 "description": "Lambda",
-                "tags": [
-                    {
-                        "name": "",
-                        "value": ""
-                    }
-                ],
+                "tags": [],
                 "constructs": [
                     {
                         "service" : "aws::lambda",
@@ -79,12 +64,7 @@
                 "stackName": "permissions-stack",
                 "id": "PermissionsStack",
                 "description": "IAM S3 role",
-                "tags": [
-                    {
-                        "name": "",
-                        "value": ""
-                    }
-                ],
+                "tags": [],
                 "constructs": [
                     {
                         "service" : "aws::iam",

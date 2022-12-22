@@ -99,10 +99,27 @@ export default abstract class Config implements IConfig {
         this.projectVersion = projectVersion
         this.projectRepository = projectRepository
         this.projectDocs = projectDocs
-        this.stacks = stacks
         this.environments = this.getEnvironments(app, environments)
-        // generate default project tags
         this.tags = this.getAllTags(tags)
+        this.stacks = this.getStacks(stacks)
+    }
+    /**
+     * Get the CDK app stacks
+     *
+     * Adds to each stack the environments and the tags configured to the cdk
+     * app.
+     *
+     * @param stacks The cdk app stacks
+     */
+    getStacks(stacks: Array<IStack>): Array<IStack> {
+        stacks.forEach((stack: IStack): void => {
+            this.tags.forEach((tag: ITag): void => {
+                stack.tags.push(tag)
+            })
+            stack.environments = this.environments
+        });
+
+        return stacks
     }
     /**
      * The project's CDK environments.
@@ -127,9 +144,9 @@ export default abstract class Config implements IConfig {
      * stack.
      * + ``environment``: The environment name (``release``,
      * ``dex``, *etc.*) used to tag the stack.
-     * 
+     *
      * .. code:: shell
-     * 
+     *
      *    npx cdk deploy \
      *      -c environment=test \
      *      -c account=test \
@@ -226,7 +243,7 @@ export default abstract class Config implements IConfig {
      */
     public getEnvironments(app: App, environments: Array<IEnvironment>): Array<IEnvironment> {
         /**
-         * Having applied the rules of precedence to determine which 
+         * Having applied the rules of precedence to determine which
          * environments the stack is to be deployed to
          */
         let finalEnv: Array<IEnvironment> = []
@@ -237,22 +254,22 @@ export default abstract class Config implements IConfig {
         /**
          * Rule 1: CLI arguments
          * ---------------------
-         * 
-         * Verify if CLI **all** arguments were passed with the cdk command. If 
-         * this is the case, specify this environment globally as the **sole** 
+         *
+         * Verify if CLI **all** arguments were passed with the cdk command. If
+         * this is the case, specify this environment globally as the **sole**
          * stacks deployment environment.
-         * 
+         *
          * Warnings
          * ------------
-         * 
+         *
          * * If this rule executes, it overrides all other rules.
-         * 
+         *
          * Requirements
          * ------------
-         * 
+         *
          * * All parameters must be passed.
          * * The specified environment must be authenticated with.
-         * 
+         *
          */
         let cliEnvironment: IEnvironment
         let environment: string = app.node.tryGetContext("environment")
@@ -269,22 +286,22 @@ export default abstract class Config implements IConfig {
         /**
          * Rule 2: Global Specification
          * ----------------------------
-         * 
-         * If ``Rule 1`` does not apply, apply the global specification of 
+         *
+         * If ``Rule 1`` does not apply, apply the global specification of
          * environments.
-         * 
+         *
          * Warnings
          * ------------
-         * 
+         *
          * * If this rule executes, it overrides all other rules.
-         * * The stacks will be deployed to **each and every** specified 
+         * * The stacks will be deployed to **each and every** specified
          * environment.
-         * 
+         *
          * Requirements
          * ------------
-         * 
+         *
          * * The specified environments must be authenticated with.
-         * 
+         *
          */
         let globalEnvironments: Array<IEnvironment> = environments
         if (!ruleMet && globalEnvironments.length){
@@ -294,21 +311,21 @@ export default abstract class Config implements IConfig {
         /**
          * Rule 4: Environments Vars Specification
          * ---------------------------------------
-         * 
-         * If no rule applies apply the environments vars specification of 
+         *
+         * If no rule applies apply the environments vars specification of
          * the environment.
-         * 
+         *
          * Warnings
          * ------------
-         * 
-         * * If this rule failes to execute, the CDK deployment will fail, the 
+         *
+         * * If this rule failes to execute, the CDK deployment will fail, the
          * environment will not have been defined.
-         * 
+         *
          * Requirements
          * ------------
-         * 
+         *
          * * The specified environment must be authenticated with.
-         * 
+         *
          */
         let envvarsEnvironment: IEnvironment = new Environment(
             process.env.CDK_DEFAULT_ENVIRONMENT!,
