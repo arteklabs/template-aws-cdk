@@ -3,13 +3,13 @@ import { IContributors, IEnvironment, IRepository, IStack, ITag } from "./type";
 
 /**
  * @summary
- * 
- * ``IConfig`` specifies configuration parameters for the CDK app. Static 
- * configuration parameters can be specified in static configuration 
- * files like ``package.json``, ``cdk.json``, ``cdk.context.json``, etc. 
+ *
+ * ``IConfig`` specifies configuration parameters for the CDK app. Static
+ * configuration parameters can be specified in static configuration
+ * files like ``package.json``, ``cdk.json``, ``cdk.context.json``, etc.
  * Dynamic configuration parameters are induced from the build runtime.
- * 
- * It is recommended to initialized a ``IConfig`` once from a module that all 
+ *
+ * It is recommended to initialized a ``IConfig`` once from a module that all
  * components can access, *e.g.*: ``lib/utils/appconfig``
  */
 export default interface IConfig {
@@ -67,21 +67,11 @@ export default interface IConfig {
     readonly tags: Array<ITag>
     /**
      * The project's CDK environments.
-     * 
-     * @default {} The environments are either defined per stack, globally or 
-     * passed as CLI arguments. Specifying environments through CLI parameters 
-     * takes precedence over defining the environments globally, which takes 
-     * precedence over defining the environments per stack, meaning that if 
-     * environments are defined globally, whichever environments declared at 
-     * the stack level are overwritten.
-     * 
-     * @example
-     * 
      */
     readonly environments: Array<IEnvironment>
     /**
      * Get the CDK stack context properties
-     * 
+     *
      * @param name The CDK stack name
      * @returns The CDK stack context properties
      */

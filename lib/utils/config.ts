@@ -1,14 +1,12 @@
 import IConfig from './interface-config';
-import { IContributors, IEnvironment, IRepository, IStack, ITag } from './type';
+import { Environment, IContributors, IEnvironment, IRepository, IStack, ITag } from './type';
 import { NoSuchParameterValueError } from '../error/error';
 import { App } from 'aws-cdk-lib';
 
 /**
- * @summary
- *
  * ``Config`` specifies configuration parameters for the CDK app. Static
  * configuration parameters can be specified in static configuration
- * files like ``package.json``, ``cdk.json``, ``cdk.context.json``, etc.
+ * files like ``package.json``, ``cdk.json``, ``cdk.context.json``, *etc.*
  * Dynamic configuration parameters are induced from the build runtime.
  *
  * Extend ``Config`` depending on the static file format.
@@ -70,76 +68,6 @@ export default abstract class Config implements IConfig {
     public readonly stacks: Array<IStack>
     /**
      * The project's CDK environments.
-     *
-     * @default {} The environments are either defined (``n-1`` takes
-     * precedence over ``n``):
-     *
-     * 1. passed as environment variables (@todo)
-     * 2. passed as CLI arguments (@todo)
-     * 3 globally
-     * 4. per stack (@todo)
-     *
-     * @example
-     *
-     * // environments defined globally
-     * {
-     *    "context": {
-     *       "environments": {
-     *           "dev": [
-     *               {
-     *                   "account": "12345678",
-     *                   "name": "AWS-ACC-DEV",
-     *                   "region": "eu-central-1"
-     *               }
-     *           ],
-     *           "release": [
-     *               {
-     *                   "account": "789456123",
-     *                   "name": "AWS-ACC-RELEASE",
-     *                   "region": "eu-central-1"
-     *               }
-     *           ],
-     *           "latest": [
-     *               {
-     *                   "account": "123789456",
-     *                   "name": "AWS-ACC-LATEST",
-     *                   "region": "eu-central-1"
-     *               }
-     *           ]
-     *       }
-     *    }
-     * }
-     *
-     * // environments defined by stack
-     * {
-     *    "context": {
-     *       "stacks": {
-     *          "storage-stack": {
-     *             "dev": [
-     *                 {
-     *                     "account": "12345678",
-     *                     "name": "AWS-ACC-DEV",
-     *                     "region": "eu-central-1"
-     *                 }
-     *             ],
-     *             "release": [
-     *                 {
-     *                     "account": "789456123",
-     *                     "name": "AWS-ACC-RELEASE",
-     *                     "region": "eu-central-1"
-     *                 }
-     *             ],
-     *             "latest": [
-     *                 {
-     *                     "account": "123789456",
-     *                     "name": "AWS-ACC-LATEST",
-     *                     "region": "eu-central-1"
-     *                 }
-     *           ]
-     *          }
-     *       }
-     *    }
-     * }
      */
     public readonly environments: Array<IEnvironment>
 
@@ -177,42 +105,219 @@ export default abstract class Config implements IConfig {
         this.tags = this.getAllTags(tags)
     }
     /**
-     * Get the project's deployment environments
+     * The project's CDK environments.
      *
-     * Apply rules of precedence:
-     * 
-     * 1. passed as environment variables (@todo)
-     * 2. passed as CLI arguments:
-     *      1. ``environment``
-     *      2. ``account``
-     *      3. ``name``
-     *      4. ``region``
-     * 3. globally ({ "context": { "environments" } })
-     * 4. per stack ({ "context": { "stacks": { "environments" } } }) (@todo)
+     * @default [] The environments are specified as:
      *
-     * It is required that the deployment host has the environments credentials.
+     * 1. CLI arguments
+     * 2. Globally in ``cdk.json``
+     * 3. Per stack in ``cdk.json`` (@todo)
+     * 4. Environment variables
+     *
+     * CLI arguments
+     * -------------
+     *
+     * The environment variables specify a deployment environment:
+     *
+     * + ``account``: The environment account ID, necessary to
+     * configure the Stack deployment.
+     * + ``region``: The environment account region, necessary to
+     * configure the stack deployment.
+     * + ``name``: The environment account name, used to tag the
+     * stack.
+     * + ``environment``: The environment name (``release``,
+     * ``dex``, *etc.*) used to tag the stack.
      * 
-     * @returns The CDK app deployment environments
+     * .. code:: shell
+     * 
+     *    npx cdk deploy \
+     *      -c environment=test \
+     *      -c account=test \
+     *      -c name=test \
+     *      -c region=test
+     *
+     * Environment Variables
+     * ---------------------
+     *
+     * The environment variables specify a deployment environment:
+     *
+     * + ``CDK_DEFAULT_ACCOUNT``: The environment account ID, necessary to
+     * configure the Stack deployment.
+     * + ``CDK_DEFAULT_REGION``: The environment account region, necessary to
+     * configure the stack deployment.
+     * + ``CDK_DEFAULT_NAME``: The environment account name, used to tag the
+     * stack.
+     * + ``CDK_DEFAULT_ENVIRONMENT``: The environment name (``release``,
+     * ``dex``, *etc.*) used to tag the stack.
+     *
+     * Environment Specified Globally
+     * ------------------------------
+     *
+     * @example
+     *
+     * {
+     *    "context": {
+     *      "environments": [
+     *          {
+     *              "environment": "dev",
+     *              "account": "secret",
+     *              "name": "secret",
+     *              "region": "secret"
+     *          },
+     *          {
+     *              "environment": "release",
+     *              "account": "secret",
+     *              "name": "secret",
+     *              "region": "secret"
+     *          },
+     *          {
+     *              "environment": "latest",
+     *              "account": "secret",
+     *              "name": "secret",
+     *              "region": "secret"
+     *          }
+     *      ]
+     *    }
+     * }
+     *
+     * Environment Specified Per Stack
+     * -------------------------------
+     *
+     * @example
+     *
+     * {
+     *      "context": {
+     *          "stacks": [
+     *              {
+     *                  "stackName": "network-stack",
+     *                  "id": "NetworkStack",
+     *                  "description": "VPC, EC2 Subnets",
+     *                  "env": "",
+     *                  "tags": [
+     *                      {
+     *                          "name": "",
+     *                          "value": ""
+     *                      }
+     *                  ],
+     *                  "constructs": [
+     *                      {
+     *                          "service": "aws::vpc",
+     *                          "id": "vpc",
+     *                          "prefix": "ARTEKLABS-",
+     *                          "suffix": "-VPC"
+     *                      }
+     *                  ],
+     *                  "environments": []
+     *              }
+     *          ]
+     *      }
+     *  }
+     *
+     * Rules Of Precedence
+     * -------------------
+     *
+     * ``n`` takes precedence over ``n+1``.
+     *
+     * Authentication
+     * --------------
+     *
+     * The stack needs to authenticate with the specified environments.
+     *
      */
     public getEnvironments(app: App, environments: Array<IEnvironment>): Array<IEnvironment> {
+        /**
+         * Having applied the rules of precedence to determine which 
+         * environments the stack is to be deployed to
+         */
         let finalEnv: Array<IEnvironment> = []
+        /**
+         * If a rule is met, ``ruleMet`` is ``true``, ``false`` otherwise.
+         */
+        let ruleMet: boolean = false
+        /**
+         * Rule 1: CLI arguments
+         * ---------------------
+         * 
+         * Verify if CLI **all** arguments were passed with the cdk command. If 
+         * this is the case, specify this environment globally as the **sole** 
+         * stacks deployment environment.
+         * 
+         * Warnings
+         * ------------
+         * 
+         * * If this rule executes, it overrides all other rules.
+         * 
+         * Requirements
+         * ------------
+         * 
+         * * All parameters must be passed.
+         * * The specified environment must be authenticated with.
+         * 
+         */
+        let cliEnvironment: IEnvironment
         let environment: string = app.node.tryGetContext("environment")
         let account: string = app.node.tryGetContext("account")
         let name: string = app.node.tryGetContext("name")
         let region: string = app.node.tryGetContext("region")
+        ruleMet = [environment, account, name, region].every(e => e != undefined)
+        if (ruleMet) {
+            cliEnvironment = new Environment(environment, account, name, region)
+            finalEnv.push(cliEnvironment)
+            ruleMet = true
+        }
 
-        // environment specification passed through CLI args
-        if (environment && account && name && region)
-            finalEnv = [{ environment, account, name, region }]
-        // environment name specified at ``cdk.json`` passed through CLI args
-        else if (environment)
-            finalEnv = environments.filter((env: IEnvironment) => {
-                env.environment == environment
-            })
-        // no environment specified by the CLI, deploy to all specified 
-        // environments in ``cdk.json``
-        else
-            finalEnv = environments
+        /**
+         * Rule 2: Global Specification
+         * ----------------------------
+         * 
+         * If ``Rule 1`` does not apply, apply the global specification of 
+         * environments.
+         * 
+         * Warnings
+         * ------------
+         * 
+         * * If this rule executes, it overrides all other rules.
+         * * The stacks will be deployed to **each and every** specified 
+         * environment.
+         * 
+         * Requirements
+         * ------------
+         * 
+         * * The specified environments must be authenticated with.
+         * 
+         */
+        let globalEnvironments: Array<IEnvironment> = environments
+        if (!ruleMet && globalEnvironments.length){
+            finalEnv = globalEnvironments
+            ruleMet = true
+        }
+        /**
+         * Rule 4: Environments Vars Specification
+         * ---------------------------------------
+         * 
+         * If no rule applies apply the environments vars specification of 
+         * the environment.
+         * 
+         * Warnings
+         * ------------
+         * 
+         * * If this rule failes to execute, the CDK deployment will fail, the 
+         * environment will not have been defined.
+         * 
+         * Requirements
+         * ------------
+         * 
+         * * The specified environment must be authenticated with.
+         * 
+         */
+        let envvarsEnvironment: IEnvironment = new Environment(
+            process.env.CDK_DEFAULT_ENVIRONMENT!,
+            process.env.CDK_DEFAULT_ACCOUNT!,
+            process.env.CDK_DEFAULT_NAME!,
+            process.env.CDK_DEFAULT_REGION!
+        )
+        if (!ruleMet && envvarsEnvironment)
+            finalEnv.push(envvarsEnvironment)
 
         return finalEnv
     }

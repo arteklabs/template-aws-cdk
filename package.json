@@ -42,6 +42,7 @@
     "@babel/plugin-transform-typescript": "^7.20.2",
     "@babel/preset-env": "^7.20.2",
     "@types/jest": "^29.2.4",
+    "@types/node": "^18.11.17",
     "@typescript-eslint/eslint-plugin": "^5.46.0",
     "aws-cdk": "^2.54.0",
     "aws-cdk-lib": "^2.54.0",
