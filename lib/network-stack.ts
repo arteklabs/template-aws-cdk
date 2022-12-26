@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import IConfig from './utils/interface-config';
 import BaseStack from './utils/base-stack';
-import { IStack } from './utils/type';
+import { IStackProps } from './utils/type';
 export default class NetworkStack extends BaseStack {
   /**
    * 
@@ -10,7 +10,7 @@ export default class NetworkStack extends BaseStack {
    */
   constructor(scope: Construct, config: IConfig) {
     let stackName: string ="network-stack"
-    let props: IStack = config.getStackProps(stackName) 
+    let props: IStackProps = config.getStackProps(stackName) 
     super(scope,  props)
   }
 }

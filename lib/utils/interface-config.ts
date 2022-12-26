@@ -1,5 +1,5 @@
 import { App } from "aws-cdk-lib";
-import { IContributors, IEnvironment, IRepository, IStack, ITag } from "./type";
+import { IContributorsProps, IEnvironmentProps, IRepositoryProps, IStackProps, ITagProps } from "./type";
 
 /**
  * @summary
@@ -20,7 +20,7 @@ export default interface IConfig {
     /**
      * The project contributors
      */
-    readonly projectContributors: Array<IContributors>
+    readonly projectContributors: Array<IContributorsProps>
     /**
      * The project engines versions
      */
@@ -52,7 +52,7 @@ export default interface IConfig {
     /**
      * The project remote repository url
      */
-    readonly projectRepository: IRepository
+    readonly projectRepository: IRepositoryProps
     /**
      * The project docs url
      */
@@ -60,22 +60,22 @@ export default interface IConfig {
     /**
      * The project's CDK Stacks configuration
      */
-    readonly stacks: Array<IStack>
+    readonly stacks: Array<IStackProps>
     /**
      * The project's CDK Stacks tags
      */
-    readonly tags: Array<ITag>
+    readonly tags: Array<ITagProps>
     /**
      * The project's CDK environments.
      */
-    readonly environments: Array<IEnvironment>
+    readonly environments: Array<IEnvironmentProps>
     /**
      * Get the CDK stack context properties
      *
      * @param name The CDK stack name
      * @returns The CDK stack context properties
      */
-    getStackProps(name: string): IStack;
-    getAllTags(tags: Array<ITag>): Array<ITag>;
-    getEnvironments(app: App, environments: Array<IEnvironment>): Array<IEnvironment>
+    getStackProps(name: string): IStackProps;
+    getAllTags(tags: Array<ITagProps>): Array<ITagProps>;
+    getEnvironments(app: App, environments: Array<IEnvironmentProps>): Array<IEnvironmentProps>
 }

@@ -4,7 +4,7 @@ import ConfigJSON from '../lib/utils/config-json';
 import StorageStack from '../lib/storage-stack';
 
 const app: App = new App();
+// @todo check if the config contains ``S3Construct``, begin by returning Stack instead of IStack in getStacks
 const config: IConfig = new     ConfigJSON(app);
 
-// @ts-ignore
-const storageStack = new StorageStack(app, config)
+StorageStack.deploy(app, config)

@@ -1,6 +1,6 @@
 import { NoSuchParameterValueError } from "../error/error"
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import { RemovalPolicy } from "aws-cdk-lib";
+import { RemovalPolicy, StackProps } from "aws-cdk-lib";
 import { BucketProps } from "aws-cdk-lib/aws-s3";
 
 type Dictionary = { [key: string]: Object }
@@ -23,12 +23,12 @@ export type S3PropsVersioned = boolean
 /** used to deploy the app to a single environment */
 export type CDKParamEnvironment = "environment"
 
-type IRepository = {
+type IRepositoryProps = {
     readonly type: string
     readonly url: string
 }
 
-class Repository implements IRepository {
+class RepositoryProps implements IRepositoryProps {
     public readonly type: string
     public readonly url: string
     constructor(type: string, url: string) {
@@ -37,13 +37,13 @@ class Repository implements IRepository {
     }
 }
 
-type IContributors  = {
+type IContributorsProps  = {
     readonly name: string
     readonly email: string
     readonly url: string
 }
 
-class Contributors implements IContributors {
+class ContributorsProps implements IContributorsProps {
     public readonly name: string
     public readonly email: string
     public readonly url: string
@@ -54,24 +54,34 @@ class Contributors implements IContributors {
     }
 }
 
-type ITag = {
+type ITagProps = {
     readonly name: string,
-    readonly value: string
+    readonly value: string,
+    /**
+     * Return a new ``ITagProps`` with the same ``name`` and ``value``.
+     */
+    clone(): ITagProps
 }
 
-class Tag implements ITag {
+class TagProps implements ITagProps {
     public readonly name: string
     public readonly value: string
     constructor(name: string, value: string) {
         this.name = name
         this.value =value
     }
+    clone(): TagProps {
+        return new TagProps(
+            this.name,
+            this.value
+        )
+    }
 }
 
 /**
  * Valid values/data types for ``cdk.json``
  */
-type IConstruct = {
+type IConstructProps = {
     readonly id: string,
     readonly service: AWSService,
     readonly bucketName?: string,
@@ -82,10 +92,11 @@ type IConstruct = {
     readonly versioned?: S3PropsVersioned,
     getId(): string,
     getService(): string,
-    toS3Construct(): Constructs
+    toS3Construct(): ConstructsProps,
+    clone(): IConstructProps
 }
 
-class Construct implements IConstruct {
+class ConstructProps implements IConstructProps {
     public readonly id: string
     public readonly service: AWSService
     public readonly bucketName?: string
@@ -113,10 +124,10 @@ class Construct implements IConstruct {
 
     /**
      * Convert this Construct to an S3Construct
-     * @returns 
+     * @returns
      */
-    toS3Construct(): S3Construct {
-        return new S3Construct(
+    toS3Construct(): S3ConstructProps {
+        return new S3ConstructProps(
             this.id,
             this.service,
             this.bucketName!,
@@ -127,9 +138,22 @@ class Construct implements IConstruct {
             this.versioned!
         )
     }
+    clone(): ConstructProps {
+        let newConstruct: ConstructProps = new ConstructProps(
+            this.id,
+            this.service,
+            this.bucketName!,
+            this.blockPublicAccess!,
+            this.removalPolicy!,
+            this.autoDeleteObjects!,
+            this.objectOwnership!,
+            this.versioned!
+        )
+        return newConstruct
+    }
 }
 
-export class S3Construct extends Construct {
+export class S3ConstructProps extends ConstructProps {
     constructor(id: string, service: AWSService, bucketName: string, blockPublicAccess: S3PropsBlockPublicAccess,  removalPolicy: S3PropsRemovalPolicy, autoDeleteObjects: S3PropsAutoDeleteObjects, objectOwnership: S3PropsObjectOwnership,  versioned: S3PropsVersioned) {
         super(id,
         service,
@@ -148,11 +172,7 @@ export class S3Construct extends Construct {
     }
     /**
      * Get the bucket name
-     * 
-     * The bucket name is defined according to the following expression:
-     * 
-     * {bucketName}-{accountId}
-     * 
+     *
      * @returns The bucket name
      */
     getBucketName(): string {
@@ -204,9 +224,7 @@ export class S3Construct extends Construct {
          return result
     }
     getAutoDeleteObjects(): boolean {
-        if (!this.autoDeleteObjects)
-            throw new NoSuchParameterValueError('autoDeleteObjects', '')
-        return this.autoDeleteObjects
+        return this.autoDeleteObjects!
     }
     getObjectOwnership(): s3.ObjectOwnership {
         if (!this.objectOwnership)
@@ -233,13 +251,11 @@ export class S3Construct extends Construct {
          return result
     }
     getVersioned(): boolean {
-        if (!this.versioned)
-            throw new NoSuchParameterValueError('versioned', '')
-        return this.versioned
+        return this.versioned!
     }
 
     getBucketProps(): BucketProps {
-        return {
+        let bucketProps: BucketProps = {
             bucketName: this.getBucketName(),
             blockPublicAccess: this.getBlockPublicAccess(),
             removalPolicy: this.getRemovalPolicy(),
@@ -247,103 +263,99 @@ export class S3Construct extends Construct {
             objectOwnership: this.getObjectOwnership(),
             versioned: this.getVersioned(),
         }
+        return bucketProps
+    }
+    public clone(): S3ConstructProps {
+        let newConstruct: S3ConstructProps = new S3ConstructProps(
+            this.id,
+            this.service,
+            this.bucketName!,
+            this.blockPublicAccess!,
+            this.removalPolicy!,
+            this.autoDeleteObjects!,
+            this.objectOwnership!,
+            this.versioned!
+        )
+        return newConstruct
     }
 }
 
-export type Constructs = S3Construct
+export type ConstructsProps = S3ConstructProps
 
 /**
- * Specification for `cdk.json` and `package.json` static configuration fields 
+ * Specification for `cdk.json` and `package.json` static configuration fields
  * regarding the project's stacks information.
  */
-type IStack = {
+type IStackProps = {
     readonly stackName: string,
     readonly id: string,
     readonly description: string,
     /**
      * The stack tags.
-     * 
-     * The stack tags are editable at runtime.
+     *
+     * The stack tags are editable at runtime and can be of types
+     * ``Array<ITagProps>`` or ``{ [key: string]: string }``. The former is
+     * used for the internal cdk app configuration, the latter is used to
+     * initialize a new ``aws-cdk-lib.StackProps``. The type of ``tags``
+     * can only be changed by the method ``tagsToCdkLibTags``.
      */
-    tags: Array<ITag>,
-    readonly constructs: Array<IConstruct>,
+    tags: Array<ITagProps>,
+    /**
+     * The stack constructs.
+     */
+    readonly constructs: Array<IConstructProps>,
     /**
      * The environments the stack is to be deployed to
-     * 
+     *
      * The stack environments are editable at runtime.
     */
-    environments: Array<IEnvironment>,
+    environments: Array<IEnvironmentProps>,
     /**
      * The AWS account of deployment for the stack
+     *
+     * The stack account can only be known at runtime, as the same stack can be
+     * deployed to multiple environments during runtime.
      */
-    readonly account: string,
+    account: string,
     /**
      * The region in the AWS account of deployment for the stack
+     *
+     * The stack account can only be known at runtime, as the same stack can be
+     * deployed to multiple environments during runtime.
      */
-    readonly region: string,
-    getConstruct(service: AWSService, name: string): S3Construct
+    region: string,
+    getConstruct(service: AWSService, name: string): IConstructProps
+    /**
+     * Deep clone these stack props
+     */
+    clone(): IStackProps
+    /**
+     * Convert the ``StackProps`` to ``aws-cdk-lib.StackProps``.
+     * 
+     * Example
+     * -------
+     * 
+     * Initializing a stack, convert the stack properties to the CDK lib 
+     * ``StackProps``:
+     * 
+     * .. code:: typescript
+     * 
+     *    stackProps.toCdkLibStackProps()
+     *
+     * @returns The stack properties as expected by the CDK lib
+     */
+    toCdkLibStackProps(): StackProps
 }
 
-class Stack implements IStack {
-    public readonly stackName: string
-    public readonly id: string
-    public readonly description: string
-    public tags: Array<ITag>
-    public readonly constructs: Array<IConstruct>
-    public environments: Array<IEnvironment>
-    /**
-     * The AWS account of deployment for the stack
-     */
-    public readonly account: string
-    /**
-     * The region in the AWS account of deployment for the stack
-     */
-    public readonly region: string
-    constructor(stackName: string, id: string, description: string, tags: Array<ITag>, constructs: Array<IConstruct>, environments: Array<IEnvironment>, account: string, region: string) {
-        this.stackName = stackName
-        this.id = id
-        this.description = description
-        this.tags = tags
-        this.constructs = constructs
-        this.environments = environments
-        this.account = account
-        this.region = region
-    }
-    getConstruct(service: AWSService, id: string): Constructs {
-        let construct: IConstruct
-        let constructs: Array<IConstruct> = this.constructs.filter((constructData: IConstruct) => {
-            constructData.service == service && constructData.id == id
-        })
-
-        if (constructs.length) {
-            construct = constructs[0]
-        } else {
-            throw new NoSuchParameterValueError('service/id', `${service}/${id}`)
-        }
-
-        // cast to appropriate construct class
-        let serviceConstruct: Constructs
-        switch(construct.service) {
-            case "aws::s3": {
-                serviceConstruct = construct.toS3Construct()
-                break;
-            }
-            default: {
-                throw new NoSuchParameterValueError('service', service)
-             }
-        }
-        return serviceConstruct
-    }
-}
-
-type IEnvironment = {
+type IEnvironmentProps = {
     readonly environment: string,
     readonly account: string,
     readonly name: string,
-    readonly region: string
+    readonly region: string,
+    clone(): IEnvironmentProps
 }
 
-class Environment implements IEnvironment {
+class EnvironmentProps implements IEnvironmentProps {
     public readonly environment: string
     public readonly account: string
     public readonly name: string
@@ -354,7 +366,15 @@ class Environment implements IEnvironment {
         this.name = name
         this.region = region
     }
+    clone(): EnvironmentProps {
+        return new EnvironmentProps(
+            this.environment,
+            this.account,
+            this.name,
+            this.region
+        )
+    }
 }
 
 
-export { Dictionary, CDKContext, IContributors, IRepository, ITag, IEnvironment, IConstruct, IStack, Stack, Construct, Tag, Environment, Repository, Contributors }
+export { Dictionary, CDKContext, IContributorsProps, IRepositoryProps, ITagProps, IEnvironmentProps, IConstructProps, IStackProps, ConstructProps, TagProps, EnvironmentProps, RepositoryProps, ContributorsProps }

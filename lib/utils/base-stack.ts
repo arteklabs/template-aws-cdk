@@ -1,11 +1,11 @@
 import { Stack, Tags } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { IStack, ITag } from "./type";
+import { IStackProps, ITagProps } from "./type";
 
 export default abstract class BaseStack extends Stack {
-    public readonly props: IStack
-    constructor(scope: Construct, props: IStack) {
-        super(scope)
+    public readonly props: IStackProps
+    constructor(scope: Construct, props: IStackProps) {
+        super(scope, props.id, props.toCdkLibStackProps())
         this.props = props
         this.tag()
     }
@@ -30,8 +30,8 @@ export default abstract class BaseStack extends Stack {
      * @param stack The CDK stack
      */
     public tag() {
-        let tags: Array<ITag> = this.props.tags
-        tags.forEach((tag: ITag): void => {
+        let tags: Array<ITagProps> = this.props.tags
+        tags.forEach((tag: ITagProps): void => {
             Tags.of(this).add(tag.name, tag.value);
         })
     }
